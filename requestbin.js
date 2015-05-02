@@ -1,7 +1,10 @@
 var http = require('http'),
     querystring = require('querystring')
 
-module.exports = {
+module.exports = function(hostname) {
+  hostname = hostname || 'requestb.in'
+  
+  return {
     create:     function( isPrivate, callback ) {
         var props = {}
         if( typeof isPrivate === 'function' ) {
@@ -9,21 +12,22 @@ module.exports = {
         } else if( isPrivate === true ) {
             props.private = 'true'
         }
-        talk( 'POST', 'bins', props, callback )
+        talk( hostname, 'POST', 'bins', props, callback )
     },
-    get:        function( bin, callback ) { talk( 'GET', 'bins/'+ bin, callback ) },
-    requests:   function( bin, callback ) { talk( 'GET', 'bins/'+ bin +'/requests', callback ) },
-    request:    function( bin, request, callback ) { talk( 'GET', 'bins/'+ bin +'/requests/'+ request, callback ) }
+    get:        function( bin, callback ) { talk( hostname, 'GET', 'bins/'+ bin, callback ) },
+    requests:   function( bin, callback ) { talk( hostname, 'GET', 'bins/'+ bin +'/requests', callback ) },
+    request:    function( bin, request, callback ) { talk( hostname, 'GET', 'bins/'+ bin +'/requests/'+ request, callback ) }
+  }
 }
 
-function talk( method, path, props, callback ) {
+function talk( hostname, method, path, props, callback ) {
     if( typeof props === 'function' ) {
         var callback = props
         var props = {}
     }
     
     var options = {
-        host:   'requestb.in',
+        host:   hostname,
         path:   '/api/v1/'+ path,
         method: method,
         headers: {
